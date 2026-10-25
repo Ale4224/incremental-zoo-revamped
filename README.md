@@ -4,6 +4,9 @@ An idle game by Eduardo Abel Gimenez (magicaweb.com), with bug fixes by Robert M
 rebuilt as a small Vite project with a new interface. The game rules, numbers and save format are
 unchanged from the original.
 
+**Original game:** [magicaweb.com/zoo](https://magicaweb.com/zoo/). All credit for the game design and content goes to its
+authors. This project only rebuilds the interface.
+
 ## Run
 
 ```sh

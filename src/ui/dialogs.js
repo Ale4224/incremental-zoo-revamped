@@ -217,6 +217,15 @@ export async function openHardReset(game, onReset) {
 
 export function openCredits() {
   const body = h('div', { class: 'credits' },
+    h('div', { class: 'original-ref' },
+      icon('paw'),
+      h('p', {},
+        'This is a revamped version of the original ',
+        h('strong', { text: 'Incremental Zoo' }),
+        '. The game, its rules and its content are the work of its original authors. Play the original at ',
+        h('a', { href: 'https://magicaweb.com/zoo/', target: '_blank', rel: 'noopener' }, 'magicaweb.com/zoo'),
+        '.'),
+    ),
     h('p', {},
       h('strong', { text: 'Incremental Zoo' }), ' by ', h('strong', { text: 'Eduardo Abel Gimenez' }),
       ' (magicaweb.com), with bug fixes by Robert Munafo (mrob.com). Title image by Sean Freeman.'),

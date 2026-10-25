@@ -1001,6 +1001,19 @@ kbd {
 .away-note { display: flex; align-items: center; gap: 8px; font-weight: 600; color: var(--navy-700); }
 
 /* credits / fine */
+.credits > * + * { margin-top: 12px; }
+.original-ref {
+  display: flex;
+  gap: 10px;
+  align-items: flex-start;
+  padding: 12px 14px;
+  border: 1px solid #f0d9a8;
+  border-radius: var(--radius);
+  background: var(--gold-100);
+  color: var(--ink);
+}
+.original-ref .icon { margin-top: 2px; color: var(--gold); }
+.site-footer a { color: var(--navy-700); font-weight: 600; }
 .credits h3 { font-size: 14px; color: var(--ink); }
 .credit-list {
   display: grid;
