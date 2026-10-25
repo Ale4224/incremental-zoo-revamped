@@ -11,7 +11,7 @@ import { createAchievementsView } from './achievements.js';
 import { createBankPanel, createVisitorsPanel, createResearchPanel, createActivityPanel } from './panels.js';
 import { createOfferPopup } from './offer.js';
 import {
-  openHelp, openStats, openExport, openImport, openNewZoo, openHardReset, openCredits, openDebtFine,
+  openHelp, openStats, openExport, openImport, openNewZoo, openHardReset, openCredits, openDebtFine, openAwaySummary,
 } from './dialogs.js';
 
 const AMOUNT_KEY = 'IZBuyAmount';
@@ -172,7 +172,10 @@ export function mountApp(root, game) {
     const extra = entry.kind === 'species' ? { quote: `“${SPECIES[entry.species].quote}” — ${SPECIES[entry.species].who}` } : {};
     activity.add({ ...entry, ...extra });
   });
+  // While the tab is hidden, skip popups: the activity feed records events
+  // and a summary is shown on return.
   game.on('species', ({ id }) => {
+    if (document.hidden) return;
     toast({
       kind: 'species',
       image: speciesImage(id),
@@ -185,8 +188,8 @@ export function mountApp(root, game) {
   game.on('badges', (ids) => {
     const list = ids.map((id) => BADGES_BY_ID.get(id));
     if (list.length === 1) {
-      toast({ kind: 'badge', image: list[0].image, title: 'Achievement unlocked', message: list[0].text, duration: 3500 });
-    } else {
+      if (!document.hidden) toast({ kind: 'badge', image: list[0].image, title: 'Achievement unlocked', message: list[0].text, duration: 3500 });
+    } else if (!document.hidden) {
       const names = list.slice(0, 2).map((b) => b.text).join(' · ');
       toast({
         kind: 'badge', image: list[0].image, duration: 4000,
@@ -201,6 +204,7 @@ export function mountApp(root, game) {
     }
   });
   game.on('fine', ({ species, kind, amount: fine }) => {
+    if (document.hidden) return;
     if (kind === 'debt') {
       openDebtFine(species, fine);
     } else {
@@ -216,12 +220,32 @@ export function mountApp(root, game) {
     }
   });
   game.on('visitors', ({ income }) => {
+    if (document.hidden) return;
     const pop = h('span', { class: 'float-gain', text: `+${money(income)}` });
     hud.cashChip.append(pop);
     setTimeout(() => pop.remove(), 1400);
     flash(hud.cashChip, 'pulse', 600);
   });
   game.on('saved', () => flash(hud.saved, 'show', 1600));
+
+  // Summarise what happened while the tab was in the background.
+  let away = null;
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) {
+      away = { at: Date.now(), snap: game.snapshot() };
+      return;
+    }
+    game.pump(); // catch up now instead of waiting for the next timer tick
+    const seconds = away ? (Date.now() - away.at) / 1000 : 0;
+    if (away && seconds >= 60 && game.zoo.resetBadges === away.snap.resetBadges && game.zoo.time >= away.snap.time) {
+      openAwaySummary(game, away.snap, seconds);
+    }
+    away = null;
+  });
+  // A long gap while the page stayed visible (e.g. the computer slept).
+  game.on('catchup', ({ seconds, before }) => {
+    if (!away && !document.hidden && seconds >= 60) openAwaySummary(game, before, seconds);
+  });
 
   document.addEventListener('keydown', (e) => {
     if (e.ctrlKey || e.metaKey || e.altKey) return;

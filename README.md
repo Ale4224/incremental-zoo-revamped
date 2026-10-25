@@ -53,4 +53,5 @@ original/             the untouched downloaded game, for reference
 - Starting a new zoo shows a checklist of requirements and the birth-rate bonus you'll get.
 - The activity feed is kept between sessions; Export can copy the code or download it as a file.
 - The game also saves when the tab is hidden or closed.
+- Background tabs keep progressing. Browsers slow timers in hidden tabs (Chrome to about once a minute), so the game runs one update for every second that actually passed, up to 8 hours per gap. On return, a "While you were away" popup sums up what happened. Time with the page closed is not counted (no offline progress).
 - The layout adapts to tablets and phones.

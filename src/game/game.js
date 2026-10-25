@@ -7,6 +7,8 @@ import { commas, money } from './format.js';
 export const SAVE_KEY = 'IZIIGameSave';
 export const AMOUNTS = [1, 10, 100, 1000, 10000];
 export const MAX_BOOSTS = 20;
+// Longest gap (in seconds) made up in one go, e.g. after the computer slept with the page open.
+export const MAX_CATCH_UP = 8 * 60 * 60;
 
 const ok = (extra = {}) => ({ ok: true, ...extra });
 const fail = (error) => ({ ok: false, error });
@@ -112,6 +114,8 @@ export class Game {
     this.earned = new Set();
     this.listeners = new Map();
     this.timer = null;
+    this.lastTick = 0;
+    this.quiet = false; // true while replaying missed seconds in bulk
   }
 
   // ---------------------------------------------------------------- events
@@ -129,9 +133,79 @@ export class Game {
     this.emit('log', { kind, text, ...extra });
   }
 
+  // Events that only drive live UI effects; skipped during bulk catch-up.
+  notify(event, payload) {
+    if (!this.quiet) this.emit(event, payload);
+  }
+
   // ------------------------------------------------------------ lifecycle
+  // The game advances one tick per real second. Browsers throttle timers in
+  // background tabs (down to once a minute), so each timer callback runs as
+  // many ticks as seconds have actually passed. Time with the page closed is
+  // never counted: lastTick starts fresh on every page load.
   start() {
-    if (!this.timer) this.timer = setInterval(() => this.tick(), 1000);
+    if (this.timer) return;
+    this.lastTick = Date.now();
+    this.timer = setInterval(() => this.pump(), 1000);
+  }
+
+  pump() {
+    const now = Date.now();
+    let due = Math.floor((now - this.lastTick) / 1000);
+    if (due < 0) {
+      this.lastTick = now; // system clock moved backwards
+      return;
+    }
+    if (due === 0) return;
+    if (due > MAX_CATCH_UP) {
+      due = MAX_CATCH_UP;
+      this.lastTick = now - due * 1000;
+    }
+    this.lastTick += due * 1000;
+
+    if (due <= 3) {
+      for (let i = 0; i < due; i++) this.tick();
+      return;
+    }
+    const before = this.snapshot();
+    this.quiet = true;
+    try {
+      for (let i = 0; i < due; i++) this.tick();
+    } finally {
+      this.quiet = false;
+    }
+    this.checkBadges();
+    this.save();
+    this.emit('catchup', { seconds: due, before });
+    this.emit('update');
+  }
+
+  // Award any newly earned achievements.
+  checkBadges() {
+    const z = this.zoo;
+    const badges = calculateBadges(z);
+    const fresh = badges.filter((id) => !this.earned.has(id));
+    z.badges = badges;
+    if (fresh.length) {
+      fresh.forEach((id) => this.earned.add(id));
+      this.emit('badges', fresh);
+    }
+  }
+
+  snapshot() {
+    const z = this.zoo;
+    return {
+      time: z.time,
+      money: z.money,
+      debt: z.debt,
+      total: z.total,
+      born: z.animals.reduce((s, a) => s + a.born, 0),
+      dead: z.animals.reduce((s, a) => s + a.dead, 0),
+      speciesShown: z.speciesShown,
+      badges: z.badges.length,
+      fines: z.fines,
+      resetBadges: z.resetBadges,
+    };
   }
 
   // Loads from localStorage. Returns true when a save was found.
@@ -589,7 +663,7 @@ export class Game {
       ? `The Animal Bureau removed 5 of your ${SPECIES[id].plural} for overcrowding.`
       : `You were fined ${money(fine)} for overcrowding in your ${SPECIES[id].name} habitat.`;
     this.log('fine', text, { species: id });
-    this.emit('fine', { species: id, kind, amount: fine });
+    this.notify('fine', { species: id, kind, amount: fine });
   }
 
   tick() {
@@ -614,7 +688,7 @@ export class Game {
       z.visitorsCounter = 0;
       z.money += income;
       this.setSave(10);
-      this.emit('visitors', { income });
+      this.notify('visitors', { income });
       if (z.visitorsLog === 0) {
         z.visitorsLog = 1;
         this.log('visitors', 'Your zoo received its first visitors!');
@@ -627,7 +701,7 @@ export class Game {
       if (z.time >= SPECIES[i].wait) {
         z.speciesShown = i + 1;
         this.log('species', `${this.certifiedPhrase()} ${SPECIES[i].plural}!`, { species: i });
-        this.emit('species', { id: i });
+        this.notify('species', { id: i });
       }
     }
 
@@ -682,7 +756,7 @@ export class Game {
         z.offerGiveNumber = giveOwn >= 10 ? Math.ceil(Math.random() * 10) : Math.ceil(Math.random() * giveOwn);
         z.offerActive = 1;
         this.setSave(1);
-        this.emit('offer', this.currentOffer());
+        this.notify('offer', this.currentOffer());
       }
     }
 
@@ -692,27 +766,22 @@ export class Game {
     }
     if (z.total > z.maxTotal) z.maxTotal = z.total;
 
-    // Achievements.
-    const badges = calculateBadges(z);
-    const fresh = badges.filter((id) => !this.earned.has(id));
-    z.badges = badges;
-    if (fresh.length) {
-      fresh.forEach((id) => this.earned.add(id));
-      this.emit('badges', fresh);
-    }
+    // Achievements. Every badge condition only ever grows, so a bulk
+    // catch-up can check once at the end instead of every second.
+    if (!this.quiet) this.checkBadges();
 
     this.refreshCreditLimit();
 
     if (this.needSave > 0) {
       this.needSave--;
-      if (this.needSave <= 0) {
+      if (this.needSave <= 0 && !this.quiet) {
         this.needSave = 0;
         this.save();
       }
     }
 
-    this.emit('tick', { births, deaths });
-    this.emit('update');
+    this.notify('tick', { births, deaths });
+    this.notify('update');
   }
 }
 

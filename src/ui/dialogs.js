@@ -1,5 +1,5 @@
 // Modal dialogs: help, stats, save transfer, new zoo, hard reset, credits, fines.
-import { SPECIES, PHOTO_CREDITS, speciesImage } from '../game/species.js';
+import { SPECIES, OMEGA_IX, PHOTO_CREDITS, speciesImage } from '../game/species.js';
 import { commas, money, bigbucks, fmt, duration } from '../game/format.js';
 import { h } from './dom.js';
 import { icon } from './icons.js';
@@ -251,5 +251,50 @@ export function openDebtFine(id, amount) {
       h('p', { text: `The Animal Bureau fined you ${money(amount)} for overcrowding in your ${SPECIES[id].name} habitat. The fine was added to your debt.` }),
     ),
     actions: [{ label: 'OK', kind: 'primary', autofocus: true }],
+  });
+}
+
+// Shown when the player returns to a background tab.
+export function openAwaySummary(game, before, seconds) {
+  const now = game.snapshot();
+  const signed = (v, f) => `${v >= 0 ? '+' : '−'}${f(Math.abs(v))}`;
+  const tile = (ic, label, value, note) => h('div', { class: 'stat-tile' },
+    h('span', { class: 'stat-tile-icon' }, icon(ic)),
+    h('span', { class: 'stat-tile-label', text: label }),
+    h('strong', { class: 'stat-tile-value', text: value }),
+    note && h('span', { class: 'muted small', text: note }));
+
+  const newSpecies = [];
+  for (let i = before.speciesShown; i < Math.min(now.speciesShown, OMEGA_IX); i++) newSpecies.push(i);
+  const fines = now.fines - before.fines;
+  const badges = now.badges - before.badges;
+
+  const body = h('div', { class: 'away' },
+    h('div', { class: 'stat-tiles' },
+      tile('coins', 'Cash', signed(now.money - before.money, money), `now ${money(now.money)}`),
+      tile('bank', 'Debt', money(now.debt), now.debt !== before.debt ? `was ${money(before.debt)}` : null),
+      tile('heart', 'Births', commas(now.born - before.born)),
+      tile('minus', 'Deaths', commas(now.dead - before.dead)),
+      tile('paw', 'Animals', signed(now.total - before.total, commas), `now ${commas(Math.max(0, now.total))}`),
+      tile('trophy', 'Achievements', `+${commas(badges)}`),
+      fines > 0 && tile('gavel', 'Fines', commas(fines), 'See the activity feed'),
+    ),
+    newSpecies.length > 0 && h('div', { class: 'away-species' },
+      h('h3', { text: newSpecies.length === 1 ? 'New species available' : `${newSpecies.length} new species available` }),
+      h('ul', {}, newSpecies.map((i) => h('li', {},
+        h('img', { src: speciesImage(i), alt: '', width: 40, height: 40 }),
+        h('span', { text: SPECIES[i].name }),
+      ))),
+    ),
+    game.currentOffer() && h('p', { class: 'away-note' }, icon('swap'), 'A trade offer is waiting for you.'),
+  );
+
+  openModal({
+    title: 'While you were away',
+    subtitle: `You were gone for ${duration(seconds)}. Your zoo kept running.`,
+    icon: 'clock',
+    body,
+    size: 'lg',
+    actions: [{ label: 'Back to the zoo', kind: 'primary', autofocus: true }],
   });
 }
