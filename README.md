@@ -4,6 +4,8 @@ An idle game by Eduardo Abel Gimenez (magicaweb.com), with bug fixes by Robert M
 rebuilt as a small Vite project with a new interface. The game rules, numbers and save format are
 unchanged from the original.
 
+**Play it:** https://ale4224.github.io/incremental-zoo-revamped/
+
 **Original game:** [magicaweb.com/zoo](https://magicaweb.com/zoo/). All credit for the game design and content goes to its
 authors. This project only rebuilds the interface.
 
@@ -15,6 +17,9 @@ npm run dev      # http://localhost:8080
 npm run build    # static site in dist/ (works from any sub-folder)
 npm run preview  # serve the build
 ```
+
+Every push to `master` builds the site and deploys it to GitHub Pages
+(`.github/workflows/deploy.yml`).
 
 The dev server uses port 8080 on purpose: saves live in the browser's localStorage per address, so
 saves from the earlier local copy at `localhost:8080` load automatically. Saves exported from the
