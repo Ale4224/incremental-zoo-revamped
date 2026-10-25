@@ -1,0 +1,176 @@
+Incremental Zoo version log
+
+	- Changes by Robert Munafo
+	- Original game by Eduardo Abel Gimenez
+
+
+	- Changes by Robert Munafo:
+ 20190825 Explicitly show the formula behind birth/death rates; add
+debug1/debug2 elements (for figuring out birth/death rate formulas)
+ 20190829 Add IZ.buyRequire function to auto-generate text "NNN
+<animal> are needed to buy <animal>". Add IZ.fmt function to format
+large numbers with K, M, B, T abbreviations. Add IZ.commas function to
+turn 12345 into 12,345. Obfuscate contact email addresses. Display
+birthrate formula even when owning only 1 animal
+       . Replace "discovered" with "learned how to care for" animals.
+Replace "Reduce the wait" with "Invest in animal welfare science".
+         Fix several bugs with fines: if you have a lot of money it simply
+takes the money rather than putting you in debt ("garnishment"), if not
+munch money it takes some animals instead.
+ 20190902 "You must have NNN <animals>" is now required only for the
+first time you buy the new species.
+         Add needSave and IZsetSave for faster auto-saves when it's important.
+         Credit limit now always based on biggest owned animal.
+         Reset is now "new zoo", requires zero debt, and current zoo must have
+at least 6 species.
+         Animal exchange offer can no longer be re-rolled by reloading
+the page.
+         Replace "many flamingos" picture with a "single flamingo"
+picture. Images are now in "img/" subdirectory.
+         "Enclosures" are now called "habitats".
+ 20190904 Show birth/death rate formulas in tooltext.
+ 20190905 Buying time now gives a random amount of time. Add alerts to
+explain why you can't buy the 21st birth rate / death rate / higher
+prices.
+ 20190906 Fix hyperexponential debt bug (replace
+"debt=Math.pow(debt,1.00002)" with "debt=debt*1.00015"). Now the
+interest rate is the same for all borrowers, rather than being higher
+for big borrowers. The old and new are equivalent when the debt is
+1.00015^(1/0.00002) = $1807.03. Also, auto-forgive debt below $0.01.
+ 20190908 "New zoo" now requires 12 species the first time (and 6
+species all subsequent times)
+ 20190914 Change a few quotes.
+ 20190915 Display "pays for itself" amounts for "but visitors" and
+"get visitors more frequently".
+ 20190918 Visitor costs now both escalate more slowly (1.2 instead of 1.25)
+making visitors relevant for a longer portion of mid-game (but still useless
+in endgame).
+ 20191102 Add IZ.bigbucks and clean up the stats formatting a bit.
+
+
+	- Original game by Eduardo Abel Gimenez:
+
+0.45
+- Options for buying 10, 100, 1000, 10000 animals
+
+0.44
+- New badge system: badges are calculated when you click the "Achievements" tab
+- New badges:
+	* For animals bought (of each species)
+	* For animals born (of each species)
+	* For animals dead (of each species)
+	* For birth-rate, death-rate, prices and enclosure boosts (of each species)
+	* For having discovered the 35 species
+- Added total animals and achievements to the respective tabs
+- Added number of species discovered to stats
+- Added estimation of birth rates after reset
+
+0.42
+- Visitors pay $1 for each species in the zoo
+- Stats include badges carried from previous games
+- Badges tab wider and without a height limit
+- Added "Sell 10,000" button
+- Lower probability of fines, lower interest rate
+- New system for offers (now involving only the two last populated species) (last not least)
+- Prettified some numbers after reload
+- Animals' tooltips only appear when hovering over photo
+
+0.41
+- Max population appears below current population
+- Several bug fixes
+
+0.40
+- Five new animals
+- Visitors
+- Fines for overcrowding
+- Logs
+- Stats
+- New design
+- Animals & Achievements tabs
+- Boost count - max 20 of each (except enclosures)
+- Badges from previous resets are cumulative with current badges for next reset (but reset bonus is lower)
+- New quantities for badges (individuals, totals, boosts)
+- Changed animals' prices
+- Changed save name so this version can coexist with .21 (both have different URLs)
+- Changed what the game saves
+- Various bug fixes
+- Title image courtesy of Guildenstern_artist
+
+0.21
+- Export/import save
+- Wider money boxes
+
+0.20
+- Enclosures: population caps and "+ Space" boost
+- 10 new animals
+- Tooltips for boosts
+- Balance adjustments
+- Prestige system (based in badges)
+
+0.11
+- Offers
+- Buy time
+- Some prettyfing and small things
+
+0.10
+- Death rate
+- Higher credit limit
+- Buffed all boosts
+- Lower increment in boost prices
+- Higher wait for first animals, lower for the rest
+
+0.09
+- Design: changed the position of things so there is more space for badges without scrolling
+- Added stats to animal tooltips
+- Added percent to birthrate
+- Made separate fil for version logging
+
+0.082
+- Buffed up the boosts a bit
+- Changed width and color of animals' tooltips
+- Made flipped images for "sold" badges
+- Changed a bit the design of the achievements (there's still a problem displaying tooltips for the lowest badges when having a lot of them)
+- Fixed sold badges
+
+0.081
+- Sell buttons changed to 100, 1,000 and 100,000
+- Added scroll bar to badges (when needed)
+
+
+0.08
+- Left column stays in place while animals scroll
+- Buttons to sell 100, 10,000 and 1,000,000 animals
+- First animals take longer to appear
+- Boosts drastically nerfed 
+- "Sold" badges' tooltips now read left to right
+- Badges' tooltips narrower so they can be read
+
+0.07
+Redesigning animal slots
+Sell 1000
+
+0.06
+Save
+Reset
+Completed 20 animals
+
+0.05
+New attempt at balance (it's better now):
+- interest applied every ten seconds (not every second)
+- lower birthrates
+More badges
+
+0.04
+Badges
+New borrow/pay buttons
+Changed balance (higher prices, higher times)
+Divided numbers by ten
+All prices with .00
+
+0.03
+Upgrades (boosts) system
+Quotes
+Started achievements (badges)
+
+0.02 - Changed from monsters to animals. New design
+0.01 - Basic parts

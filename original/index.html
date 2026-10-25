@@ -1,0 +1,77 @@
+<!-- - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -*-HTML-*- - -
+                               Incremental Zoo
+                                     by
+                     Eduardo Abel Gimenez (magicaweb.com)
+                  with bug fixes by Robert Munafo (mrob.com)
+                        for version info see log.txt
+  - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -->
+
+<!DOCTYPE html>
+<head>
+
+<title id="title">Incremental Zoo</title>
+<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+<link rel="Shortcut Icon" href="favicon.ico">
+<!-- Analytics omitted for local/offline use. -->
+<link href="zoo.css" rel="stylesheet" type="text/css">
+</head>
+
+<div class="container">
+  <div id="left">
+    <div id="money">
+      <p><strong>You Have</strong>
+      <h2 id="have" class="buttonLike">$0.00</h2><br>
+      <div class="money borrow" onmousedown="IZ.moneyClick(10)">Borrow<br>$10</div>
+      <div class="money borrow" onmousedown="IZ.moneyClick(1000)">Borrow<br>$1,000</div>
+      <div class="money borrow" onmousedown="IZ.moneyClick('max')">Borrow<br>Max</div>
+    </div>
+    <div id="debt">
+      <h3 id="limit">Credit Limit: 50</h3>
+      <div class="money payBack" onmousedown="IZ.debtClick(10)">Pay<br>$10</div>
+      <div class="money payBack" onmousedown="IZ.debtClick(1000)">Pay<br>$1,000</div>
+      <div class="money payBack" onmousedown="IZ.debtClick('max')">Pay<br>Max</div><br>
+      <h2 id="owe" class="buttonLike">$0.00</h2>
+      <p><strong>You Owe</strong>
+    </div>
+    <hr/>
+    <div id="stats" class="options" onmousedown="IZ.createStats()">Stats</div>
+    <div id="export" class="options" onmousedown="IZ.exportSave()">Export</div>
+    <div id="import" class="options" onmousedown="IZ.importSave()">Import</div>
+    <div id="reset" class="options" onmousedown="IZ.reset()">New Zoo</div>
+    <hr/>
+
+    <span style="display: none">
+      <div id="debug1"><h3>debug1 info here</h3></div>
+      <div id="debug2"><h3>debug2 info here</h3></div>
+      <hr/>
+    </span>
+
+    <div id="offerContainer">
+      <div id="offerTitle"><h3>The Incremental Office<br>For Animal Exchange<br>offers:</h3></div>
+      <div id="offer"><h2>Get x<br>in exchange for<br>y</h2></div>
+      <br>
+      <div id="offerNo" onmousedown="IZ.offerRejected()">No, thanks</div>
+      <div id="offerYes" onmousedown="IZ.offerAccepted()">I accept</div>
+    </div>
+    <div id="exportContainer"></div>
+    <div id="fineContainer"></div>
+    <div id="log"></div>
+  </div>
+  <div id="title">
+    <img src="img/incremental_zoo_resize.png" alt="Incremental Zoo, an Idle Game by Eduardo Abel Gimenez" title="Incremental Zoo, an Idle Game by Eduardo Abel Gimenez"/>
+    <h3 id="what" onmousedown="IZ.hideWhat()">
+Borrow money. Buy animals, at least two of each species. Wait for them
+to breed. Sell some. Buy other animals. Pay back your debt before the
+cumulative interest gets too high. Be patient. Get badges. Start a new zoo
+and you'll advance more quickly. (Click this to hide it.)
+    </h3>
+  </div>
+
+  <div id="animalsContainer">Loading...</div>
+
+</div>
+
+<script type="text/javascript" src="zoo.js"></script>
+
+</body>
+</html>
